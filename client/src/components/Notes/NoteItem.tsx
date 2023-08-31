@@ -3,11 +3,18 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
   IconButton,
   SxProps,
   TextField,
   Theme,
 } from "@mui/material";
+import { useState } from "react";
 
 export interface NoteItemProps {
   title?: string;
@@ -26,6 +33,8 @@ const NoteItem = ({
   onDelete,
   sx,
 }: NoteItemProps) => {
+  const [isDeleting, setIsDeleting] = useState(false);
+
   return (
     <Accordion disableGutters elevation={6} sx={sx}>
       <AccordionSummary
@@ -52,7 +61,7 @@ const NoteItem = ({
           aria-label="delete"
           onClick={(e) => {
             e.stopPropagation();
-            onDelete?.();
+            setIsDeleting(true);
           }}
           sx={{ marginLeft: 1 }}
         >
@@ -67,6 +76,22 @@ const NoteItem = ({
           value={note}
           onChange={(e) => onNoteChange?.(e.target.value)}
         />
+        <Dialog open={isDeleting}>
+          <DialogTitle>{"Delete note?"}</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              Are you sure you want to delete this note?
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button autoFocus onClick={() => setIsDeleting(false)}>
+              Cancel
+            </Button>
+            <Button onClick={onDelete} variant="contained" color="error">
+              Delete
+            </Button>
+          </DialogActions>
+        </Dialog>
       </AccordionDetails>
     </Accordion>
   );

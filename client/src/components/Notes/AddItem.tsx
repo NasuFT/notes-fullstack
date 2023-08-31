@@ -1,13 +1,25 @@
 import { NoteAdd } from "@mui/icons-material";
-import { Box, ButtonBase, ButtonBaseProps, Typography } from "@mui/material";
+import {
+  Backdrop,
+  Box,
+  ButtonBase,
+  ButtonBaseProps,
+  CircularProgress,
+  Typography,
+} from "@mui/material";
 
-interface NoteGroupAddProps extends ButtonBaseProps {
+interface AddItemAddProps extends ButtonBaseProps {
   label?: string;
 }
 
-const NoteGroupAdd = ({ label = "", ...props }: NoteGroupAddProps) => {
+const AddItem = ({
+  label = "",
+  disabled = false,
+  ...props
+}: AddItemAddProps) => {
   return (
     <ButtonBase
+      disabled={disabled}
       {...props}
       sx={{
         minHeight: 80,
@@ -20,15 +32,25 @@ const NoteGroupAdd = ({ label = "", ...props }: NoteGroupAddProps) => {
       }}
     >
       <Box
-        sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
       >
         <NoteAdd sx={{ opacity: 0.45, marginBottom: 0.5, flexGrow: 1 }} />
         <Typography align="center" sx={{ opacity: 0.45 }}>
           {label}
         </Typography>
       </Box>
+      <Backdrop
+        open={disabled}
+        sx={{ position: "absolute", left: 0, right: 0, top: 0, bottom: 0 }}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
     </ButtonBase>
   );
 };
 
-export default NoteGroupAdd;
+export default AddItem;
