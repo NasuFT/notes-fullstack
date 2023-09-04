@@ -1,36 +1,65 @@
 import { Container, Paper, ThemeProvider } from "@mui/material";
 import theme from "./theme";
 import NavBar from "./components/NavBar";
-import { useNotes } from "./hooks/useNotes";
 import NoteContainer from "./components/Notes/NoteContainer";
+import { useNotes } from "./hooks/useNotes";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { useState } from "react";
+
+const queryClient = new QueryClient();
 
 const App = () => {
-  const notes = useNotes((state) => state.notes);
-  const addNote = useNotes((state) => state.addNote);
-  const deleteNote = useNotes((state) => state.deleteNote);
-  const updateNoteTitle = useNotes((state) => state.updateNoteTitle);
-  const updateNoteText = useNotes((state) => state.updateNoteText);
+  const [toDeleteID, setToDeleteID] = useState<number | null>(null);
+  const [isDeletePromptOpen, setIsDeletePromptOpen] = useState(false);
 
-  // const { isLoading, error, data } = useQuery(
-  //   "fetchTodos",
-  //   () => fetch("http://localhost:3000/notes").then((res) => res.json())
-  // );
+  const {
+    isInitialLoading,
+    notes,
+    addNote,
+    isAdding,
+    isDeleting,
+    deleteNote,
+    queueUpdate,
+  } = useNotes({
+    onDeleteSuccess: () => {
+      setToDeleteID(null);
+      setIsDeletePromptOpen(false);
+    },
+  });
+
+  const handleDeletePromptOpen = (id: number) => {
+    setToDeleteID(id);
+    setIsDeletePromptOpen(true);
+  };
+
+  const handleDeletePromptCancel = () => {
+    setToDeleteID(null);
+    setIsDeletePromptOpen(false);
+  };
 
   return (
-    <ThemeProvider theme={theme}>
-      <Paper elevation={0} square sx={{ height: "100vh", overflow: "auto" }}>
-        <NavBar />
-        <Container fixed sx={{ paddingX: 1, paddingY: 2 }}>
-          <NoteContainer
-            notes={notes}
-            onAddNote={addNote}
-            onDeleteNote={deleteNote}
-            onNoteChange={updateNoteText}
-            onTitleChange={updateNoteTitle}
-          />
-        </Container>
-      </Paper>
-    </ThemeProvider>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider theme={theme}>
+        <Paper elevation={0} square sx={{ height: "100vh", overflow: "auto" }}>
+          <NavBar />
+          <Container fixed sx={{ paddingX: 1, paddingY: 2 }}>
+            <NoteContainer
+              initialNotes={notes}
+              isLoading={isInitialLoading}
+              isDeleting={isDeleting}
+              isAdding={isAdding}
+              isDeletePromptOpen={isDeletePromptOpen}
+              onAddNote={addNote}
+              onDeleteNote={() => deleteNote(toDeleteID!)}
+              onDeletePromptOpen={handleDeletePromptOpen}
+              onDeletePromptCancel={handleDeletePromptCancel}
+              onNoteChange={(id, note) => queueUpdate(id, { note })}
+              onTitleChange={(id, title) => queueUpdate(id, { title })}
+            />
+          </Container>
+        </Paper>
+      </ThemeProvider>
+    </QueryClientProvider>
   );
 };
 
