@@ -102,8 +102,6 @@ export const useNotes = ({ onDeleteSuccess }: UseNotesOptions) => {
         Object.assign(update, content);
       }
 
-      console.log(updates.current);
-
       setIsTimerActive(true);
       timerRef.current = setTimeout(() => {
         updateNotes();
