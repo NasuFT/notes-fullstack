@@ -5,7 +5,7 @@ import {
   deleteNote as deleteNoteAPI,
   batchUpdate,
 } from "../api/notes";
-import { useCallback, useRef } from "react";
+import { useCallback, useRef, useState } from "react";
 
 type NoteID = number;
 // type NoteGroupID = string | number;
@@ -29,6 +29,7 @@ export const useNotes = ({ onDeleteSuccess }: UseNotesOptions) => {
   const updates = useRef(new Map<number, NoteContent>());
   const updatesToCommit = useRef(new Map<number, NoteContent>());
   const timerRef = useRef<number>(-1);
+  const [isTimerActive, setIsTimerActive] = useState(false);
 
   const { data: notes, isInitialLoading } = useQuery(
     ["notes"],
@@ -62,7 +63,11 @@ export const useNotes = ({ onDeleteSuccess }: UseNotesOptions) => {
     }
   );
 
-  const { mutate: updateNotes } = useMutation(async () => {
+  const {
+    mutate: updateNotes,
+    status: updateStatus,
+    isLoading: isUpdating,
+  } = useMutation(async () => {
     applyUpdates();
     return batchUpdate(updatesToCommit.current).then((res) => res.data);
   });
@@ -99,7 +104,11 @@ export const useNotes = ({ onDeleteSuccess }: UseNotesOptions) => {
 
       console.log(updates.current);
 
-      timerRef.current = setTimeout(updateNotes, 3000);
+      setIsTimerActive(true);
+      timerRef.current = setTimeout(() => {
+        updateNotes();
+        setIsTimerActive(false);
+      }, 3000);
     },
     [updateNotes]
   );
@@ -112,5 +121,8 @@ export const useNotes = ({ onDeleteSuccess }: UseNotesOptions) => {
     isDeleting,
     deleteNote,
     queueUpdate,
+    willUpdate: isTimerActive,
+    isUpdating,
+    updateStatus,
   };
 };

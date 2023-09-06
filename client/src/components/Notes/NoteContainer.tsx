@@ -9,6 +9,8 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
+  Snackbar,
+  SnackbarContent,
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 
@@ -18,6 +20,10 @@ interface NoteContainerProps {
   isDeleting?: boolean;
   isDeletePromptOpen?: boolean;
   isLoading?: boolean;
+  isSnackbarOpen?: boolean;
+  snackbarMessage?: string;
+  snackbarAutohideDuration?: number | null;
+  onSnackbarClose?: () => void;
   onAddNote?: () => void | Promise<void>;
   onDeleteNote?: () => void;
   onTitleChange?: (id: Note["id"], title: string) => void;
@@ -32,6 +38,10 @@ const NoteContainer = ({
   isDeleting = false,
   isLoading = false,
   isDeletePromptOpen = false,
+  isSnackbarOpen = false,
+  snackbarMessage = "",
+  snackbarAutohideDuration,
+  onSnackbarClose,
   onAddNote,
   onDeleteNote,
   onTitleChange,
@@ -83,6 +93,19 @@ const NoteContainer = ({
           </LoadingButton>
         </DialogActions>
       </Dialog>
+      <Snackbar
+        open={isSnackbarOpen}
+        autoHideDuration={snackbarAutohideDuration}
+        onClose={(_, reason) => {
+          if (reason === "clickaway" || reason === "escapeKeyDown") {
+            return;
+          }
+
+          onSnackbarClose?.();
+        }}
+      >
+        <SnackbarContent message={snackbarMessage} />
+      </Snackbar>
     </>
   );
 };

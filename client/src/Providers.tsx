@@ -10,7 +10,9 @@ interface ProvidersProps {
 
 const Providers = ({ children }: ProvidersProps) => (
   <QueryClientProvider client={queryClient}>
-    <ThemeProvider theme={theme}>{children}</ThemeProvider>
+    <ThemeProvider theme={theme}>
+      {children}
+    </ThemeProvider>
   </QueryClientProvider>
 );
 
